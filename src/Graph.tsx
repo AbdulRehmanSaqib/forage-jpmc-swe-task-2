@@ -32,25 +32,33 @@ class Graph extends Component<IProps, {}> {
 
   componentDidMount() {
     // Get element to attach the table from the DOM.
-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+    const elem: any = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
 
+  
     const schema = {
       stock: 'string',
       top_ask_price: 'float',
       top_bid_price: 'float',
       timestamp: 'date',
     };
-
+  
     if (window.perspective && window.perspective.worker()) {
       this.table = window.perspective.worker().table(schema);
     }
     if (this.table) {
       // Load the `table` in the `<perspective-viewer>` DOM reference.
-
+      (elem as any).load(this.table); // Use type assertion here
+  
       // Add more Perspective configurations here.
-      elem.load(this.table);
+      // Configure Perspective attributes for the graph visualization
+      (elem as any).setAttribute('view', 'y_line'); // Use a continuous line graph
+      (elem as any).setAttribute('column-pivots', '["stock"]'); // Distinguish stocks ABC and DEF
+      (elem as any).setAttribute('row-pivots', '["timestamp"]'); // Map data points based on timestamp
+      (elem as any).setAttribute('columns', '["top_ask_price"]'); // Focus on top_ask_price
+      (elem as any).setAttribute('aggregates', '{"stock":"distinct count","top_ask_price":"avg"}'); // Handle duplicates
     }
   }
+  
 
   componentDidUpdate() {
     // Everytime the data props is updated, insert the data into Perspective table
